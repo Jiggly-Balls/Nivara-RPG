@@ -6,10 +6,42 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "py-cord>=2.6.1",
+    "python-dotenv>=1.1.0",
 ]
 
 [dependency-groups]
 dev = [
     "basedpyright>=1.29.1",
+    "isort>=6.0.1",
     "ruff>=0.11.6",
 ]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+skip = [".bzr", ".direnv", ".eggs", ".git", ".hg", ".mypy_cache", ".nox", ".pants.d", ".svn", ".tox", ".venv", "__pypackages__", "_build", "buck-out", "build", "dist", "node_modules", "venv", "dispie/"]
+
+[tool.ruff]
+line-length = 79
+lint.extend-select = ["ANN"]
+lint.ignore = ["ANN401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 72
+
+[tool.basedpyright]
+exclude = ["**/node_modules", "**/__pycache__", "**/.*", "test*.py", "*venv"]
+reportImportCycles = false
+reportUnnecessaryIsInstance = false
+reportImplicitStringConcatenation = false
+reportUnusedCallResult = false
+reportMissingTypeStubs = false
+reportAssignmentType = false
+reportRedeclaration = false
+reportAny = false
+reportExplicitAny = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
