@@ -1,2 +1,0 @@
-EXTENSION_DIRECTORY: str = "cogs"
-STATUS_INTERVAL: float = 600.0
