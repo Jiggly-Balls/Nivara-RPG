@@ -9,7 +9,7 @@ from discord.ext import tasks
 
 from backend.cache import Cache
 from core.base_cog import BaseCog
-from data.constants.core_constants import STATUS_INTERVAL
+from data.constants.core import STATUS_INTERVAL
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
