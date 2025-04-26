@@ -79,10 +79,10 @@ class BasePool(asyncpg.Pool):
         self, query: str, *args: Any, timeout: None | float = None
     ) -> str:
         return await self.__reconnect_execution(
-            super().execute,
+            super().execute,  # pyright:ignore[reportUnknownArgumentType]
             query,
             *args,
-            timeout=timeout,  # pyright:ignore[reportUnknownArgumentType]
+            timeout=timeout,
         )
 
     async def fetch(
