@@ -40,27 +40,3 @@ class InvalidType(DBException):
         self.val_type = val_type
         self.expected_type = expected_type
         super().__init__(*args, **kwargs)
-
-
-class AirtableException(Exception):
-    """Base class of Airtable exceptions"""
-
-
-class InvalidResponse(AirtableException):
-    """Raised when a non 2xx response code is sent.
-
-    Attributes
-    ------------
-    code: :class:`int`
-        The error code.
-
-    status: :class:`str`
-        The error message.
-    """
-
-    def __init__(
-        self, *args: Any, code: int, status: str, **kwargs: Any
-    ) -> None:
-        super().__init__(*args, **kwargs)
-        self.code = code
-        self.status = status
