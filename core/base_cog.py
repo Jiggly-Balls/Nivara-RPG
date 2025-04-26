@@ -22,4 +22,4 @@ class BaseCog(commands.Cog):
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:
-        self.logger.info(f"{self.cog_name:<15} is ready.")
+        self.logger.info(f"{self.cog_name} is ready.")
