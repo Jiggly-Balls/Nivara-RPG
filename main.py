@@ -22,7 +22,7 @@ import os
 import discord
 import dotenv
 from discord import MISSING
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from backend.base_db import BaseData
 from backend.cache import Cache
@@ -36,6 +36,7 @@ CONNECTION_STRING = ENV["CONNECTION_STRING"]
 intents = discord.Intents.none()
 
 
+discord.VoiceClient.warn_nacl = False
 logging.basicConfig(
     filename="bot.log",
     filemode="w",
@@ -43,7 +44,8 @@ logging.basicConfig(
     format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s",
 )
 
-logging.getLogger("discord").setLevel(logging.ERROR)
+logging.getLogger("discord").setLevel(logging.WARNING)
+logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 setup_logging()
 
 logger = logging.getLogger()
@@ -69,7 +71,12 @@ async def main() -> None:
             raise RuntimeError("No 'TOKEN' was provided in the .env file")
 
         bot = Bot(intents=intents)
-        BaseData.db_engine = create_async_engine(CONNECTION_STRING)
+        BaseData.db_engine = create_async_engine(
+            CONNECTION_STRING, pool_pre_ping=True
+        )
+        BaseData.session_factory = async_sessionmaker(
+            BaseData.db_engine, expire_on_commit=True
+        )
         Cache.uptime = f"<t:{round(datetime.datetime.now().timestamp())}:R>"
 
         async with BaseData.db_engine.begin() as conn:
@@ -80,6 +87,7 @@ async def main() -> None:
         await bot.start(TOKEN)
 
     finally:
+        print("CLOSING")
         if BaseData.db_engine is not MISSING:
             await BaseData.db_engine.dispose()
 
