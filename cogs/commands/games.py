@@ -1,17 +1,13 @@
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING
+from pprint import pprint
 
 import discord
+from discord import ApplicationContext
+from discord.commands import option
 
+from backend.db_users import UserAspect, UserDB
 from core.base_cog import BaseCog
-
-if TYPE_CHECKING:
-    from discord import ApplicationContext
-
-    from core.bot import Bot
-
+from core.bot import Bot
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +23,38 @@ class Games(BaseCog):
 
     @games.command()
     async def test(self, ctx: ApplicationContext) -> None:
-        await ctx.respond(embed=discord.Embed(description="Testing"))
+        player = UserDB(ctx.author.id)
+        await player.post_account()
+
+        await ctx.respond(embed=discord.Embed(description="Created account"))
+
+    @games.command()
+    @option("id", required=False)
+    async def test2(self, ctx: ApplicationContext, id: str) -> None:
+        await ctx.defer()
+
+        id: int = int(id) if id else ctx.author.id
+        player = UserDB(id)
+        player_data = await player.get_account()
+
+        print(type(player_data))
+        print()
+        print()
+        pprint(dir(player_data))
+        print()
+        print()
+        pprint(player_data)
+
+        await ctx.followup.send(content="DONE")
+
+    @games.command()
+    async def test3(self, ctx: ApplicationContext, value: int) -> None:
+        await ctx.defer()
+
+        player = UserDB(ctx.author.id)
+        await player.update_aspect(UserAspect.exp, value=value)
+
+        await ctx.followup.send(content=f"Updated EXP to: {value}")
 
 
 def setup(bot: Bot) -> None:
