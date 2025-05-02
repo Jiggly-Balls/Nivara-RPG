@@ -8,7 +8,6 @@ from backend.cache import Cache
 from backend.db_users import UserDB
 from core.base_cog import BaseCog
 from core.bot import Bot
-from core.meta import get_version
 from core.utils import MainEmbed
 
 logger = logging.getLogger(__name__)
@@ -33,12 +32,16 @@ class Misc(BaseCog):
         db_latency = round((time.perf_counter() - db_time) * 1000)
         bot_latency = round(self.bot.latency * 1000)
 
+        thumbnail = None
+        if self.bot.user:
+            thumbnail = self.bot.user.display_avatar.url
+
         status_embed = (
             MainEmbed(
                 "Nivara's Status",
-                thumbnail=self.bot.user.display_avatar.url,
+                thumbnail=thumbnail,
             )
-            .add_field(name="Version", value=get_version(), inline=False)
+            .add_field(name="Version", value=self.bot.version, inline=False)
             .add_field(
                 name="Bot Latency", value=f"`{bot_latency} ms`", inline=False
             )
