@@ -16,7 +16,7 @@ class MainEmbed(Embed):
         self, title: str, description: str, **kwargs: Any
     ) -> None: ...
 
-    def __init__(
+    def __init__(  # pyright:ignore[reportInconsistentOverload]
         self, title: str, description: str | None = None, /, **kwargs: Any
     ) -> None:
         if description is None:
