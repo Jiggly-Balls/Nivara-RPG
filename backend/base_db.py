@@ -24,7 +24,8 @@ class BaseData(ABC):
     Attributes
     ----------
     db_engine :class:`AsyncEngine`
-        The SQLAlchemy async engine for the database. Remains as `discord.MISSING` if not connected.
+        The SQLAlchemy async engine for the database.
+        Remains as `discord.MISSING` if not connected.
     """
 
     db_engine: AsyncEngine = MISSING
@@ -40,12 +41,19 @@ class BaseData(ABC):
 
         return super().__new__(cls)
 
+    # @staticmethod
+    # def session_factory() -> AsyncSession:
+    #     session = async_sessionmaker(
+    #         BaseData.db_engine, expire_on_commit=True
+    #     )
+    #     return session()
+
     @abstractmethod
     async def post_account(self) -> Any: ...
 
     @staticmethod
     @abstractmethod
-    async def find_account(key: str, value: Any) -> Any: ...
+    async def find_account(key: Any, value: Any) -> Any: ...
 
     @classmethod
     @abstractmethod
