@@ -9,7 +9,6 @@ from discord.ext import tasks
 
 from backend.cache import Cache
 from core.base_cog import BaseCog
-from core.meta import get_version
 from data.constants.core import STATUS_INTERVAL
 
 if TYPE_CHECKING:
@@ -27,7 +26,6 @@ class StatusHandler(BaseCog):
         self.bot = bot
         self.notify: bool = False
         self.status: None | Iterator[str] = None
-        self.version = get_version()
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:
@@ -66,7 +64,7 @@ class StatusHandler(BaseCog):
         return iter(
             # Prefixed by "Listening to"
             (
-                f"version {self.version}",
+                f"version {self.bot.version}",
                 f"humans in {Cache.guilds} Servers!",
                 f"{Cache.users} users!",
                 "Slash Commands!",
