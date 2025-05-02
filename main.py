@@ -33,7 +33,7 @@ from data.constants.core import EXTENSION_DIRECTORY
 ENV = dotenv.dotenv_values(".env")
 TOKEN = ENV["TOKEN"]
 CONNECTION_STRING = ENV["CONNECTION_STRING"]
-intents = discord.Intents.none()
+intents = discord.Intents(guilds=True, members=True)
 
 
 discord.VoiceClient.warn_nacl = False
@@ -51,11 +51,19 @@ setup_logging()
 logger = logging.getLogger()
 
 
-def load_extensions(bot: Bot) -> None:
-    for folder in os.listdir(EXTENSION_DIRECTORY):
-        for cog in os.listdir(EXTENSION_DIRECTORY + "/" + folder):
+def load_extensions(*, bot: Bot, directory: str) -> None:
+    """Loads all the extensions from the supplied directory.
+
+    Parameters
+    ----------
+    directory
+        The directory containing the cogs.
+    """
+
+    for folder in os.listdir(directory):
+        for cog in os.listdir(directory + "/" + folder):
             if cog.endswith(".py"):
-                cog_path = EXTENSION_DIRECTORY + "." + folder + "." + cog[:-3]
+                cog_path = directory + "." + folder + "." + cog[:-3]
                 bot.load_extension(cog_path)
                 logging.info(f"Loading Extension: {cog_path}")
 
@@ -82,13 +90,13 @@ async def main() -> None:
         async with BaseData.db_engine.begin() as conn:
             await conn.run_sync(BaseTable.metadata.create_all)
 
-        load_extensions(bot=bot)
+        load_extensions(bot=bot, directory=EXTENSION_DIRECTORY)
 
         await bot.start(TOKEN)
 
     finally:
-        print("CLOSING")
         if BaseData.db_engine is not MISSING:
+            logger.info("Closing database connection.")
             await BaseData.db_engine.dispose()
 
 
