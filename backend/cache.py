@@ -1,5 +1,8 @@
+from discord import MISSING
+
+
 class Cache:
-    uptime: None | str = None
-    last_reconnect: None | str = None
-    users: None | int = None
-    guilds: None | int = None
+    uptime: str = MISSING
+    last_reconnect: str = MISSING
+    users: int = MISSING
+    guilds: int = MISSING
