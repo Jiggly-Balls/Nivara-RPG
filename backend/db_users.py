@@ -7,7 +7,6 @@ import sqlalchemy
 from sqlalchemy import select, update
 
 from backend.base_db import BaseData
-from backend.errors import InvalidType
 from backend.tables import User
 
 if TYPE_CHECKING:
@@ -24,14 +23,6 @@ class UserAspect(StrEnum):
 
 class UserDB(BaseData):
     def __init__(self, id: int) -> None:
-        if not isinstance(id, int):
-            val_type = type(id)
-            raise InvalidType(
-                f"Expected type {int}. Instead got type {val_type}.",
-                val_type=val_type,
-                expected_type=int,
-            )
-
         self.id = id
 
     async def post_account(self) -> bool:
@@ -44,7 +35,7 @@ class UserDB(BaseData):
                 return False
 
     @staticmethod
-    async def find_account(key: str, value: Any) -> Any: ...
+    async def find_account(key: User, value: Any) -> Any: ...
 
     @classmethod
     async def get_all_accounts(cls) -> Any: ...
@@ -71,14 +62,6 @@ class UserDB(BaseData):
             return data[0]
 
     async def update_aspect(self, key: UserAspect, value: Any) -> None:
-        if not isinstance(key, UserAspect):
-            val_type = type(key)
-            raise InvalidType(
-                f"Expected type {UserAspect}. Instead got type {val_type}.",
-                val_type=val_type,
-                expected_type=int,
-            )
-
         async with BaseData.session_factory() as session:
             payload = {str(key): value}
 
