@@ -6,8 +6,7 @@ from discord import ApplicationContext
 
 from backend.cache import Cache
 from backend.db_users import UserDB
-from core.base_cog import BaseCog
-from core.bot import Bot
+from core import BaseCog, Bot
 from core.utils import MainEmbed
 
 logger = logging.getLogger(__name__)
