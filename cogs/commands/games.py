@@ -6,8 +6,9 @@ from discord import ApplicationContext
 from discord.commands import option
 
 from backend.db_users import UserAspect, UserDB
-from core.base_cog import BaseCog
-from core.bot import Bot
+from core import BaseCog, Bot
+from core.views.games_view import MineGameView
+from data.games.mine import MineEngine
 
 logger = logging.getLogger(__name__)
 
@@ -17,18 +18,19 @@ class Games(BaseCog):
         super().__init__(logger=logger)
         self.bot = bot
 
-    games = discord.SlashCommandGroup(
+    games_group = discord.SlashCommandGroup(
         "games", "Fun games to play with your friends!"
     )
 
-    @games.command()
-    async def test(self, ctx: ApplicationContext) -> None:
-        player = UserDB(ctx.author.id)
-        await player.post_account()
+    @games_group.command()
+    async def mine(self, ctx: ApplicationContext) -> None:
+        await ctx.defer()
+        miner = MineEngine()
+        miner.create_map()
+        image = miner.create_image()
+        await ctx.respond(image, view=MineGameView(ctx.author.id, miner))
 
-        await ctx.respond(embed=discord.Embed(description="Created account"))
-
-    @games.command()
+    @games_group.command()
     @option("id", required=False)
     async def test2(self, ctx: ApplicationContext, id: str) -> None:
         await ctx.defer()
@@ -47,7 +49,7 @@ class Games(BaseCog):
 
         await ctx.followup.send(content="DONE")
 
-    @games.command()
+    @games_group.command()
     async def test3(self, ctx: ApplicationContext, value: int) -> None:
         await ctx.defer()
 
