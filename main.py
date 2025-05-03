@@ -96,8 +96,9 @@ async def main() -> None:
 
     finally:
         if BaseData.db_engine is not MISSING:
-            logger.info("Closing database connection.")
+            logger.info("Attempting to close database connection.")
             await BaseData.db_engine.dispose()
+            logger.info("Closed database connection.")
 
 
 if __name__ == "__main__":
