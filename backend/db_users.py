@@ -18,7 +18,6 @@ class UserAspect(StrEnum):
     exp = auto()
     wallet = auto()
     bank = auto()
-    net_worth = auto()
 
 
 class UserDB(BaseData):
@@ -74,6 +73,9 @@ class UserDB(BaseData):
             await session.execute(update_user_query)
             await session.commit()
 
-    async def increment_aspect(self, key: UserAspect, value: int) -> Any: ...
+    async def increment_aspect(self, key: UserAspect, value: int = 1) -> None:
+        user = await self.get_account()
+        final_val = user.__dict__[key] + value
+        await self.update_aspect(key=key, value=final_val)
 
     async def delete_account(self) -> Any: ...
