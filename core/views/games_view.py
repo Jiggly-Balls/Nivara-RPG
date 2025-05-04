@@ -18,11 +18,11 @@ from data.constants.games import (
     Direction,
 )
 from data.games.mine import MineEngine
-from data.games.roulette import ChamberIterator, PlayerIterator
+from data.games.roulette import ChamberIterator, PlayerIterator, RouletteData
 from data.timeouts.views import ROULETTE_AUTOSTART
 
 if TYPE_CHECKING:
-    from discord import Button, Interaction, Member
+    from discord import Button, Interaction, Member, User
 
 
 class MineButton(discord.ui.Button["MineGameView"]):
@@ -66,14 +66,14 @@ class MineGameView(discord.ui.View):
 ####
 
 
-def roulette_embedder(guild: int, author: Member) -> Embed:
-    countdown = Cache.roulette_active[guild]["countdown"]
-    total_players = len(Cache.roulette_active[guild]["players"].player_list)
+def roulette_embedder(guild: int, author: Member | User) -> Embed:
+    countdown = Cache.roulette_active[guild].countdown
+    total_players = len(Cache.roulette_active[guild].players.player_list)
     player_list = "\n".join(
         [
             f"`{num}.` **{user.name}**"
             for num, user in enumerate(
-                Cache.roulette_active[guild]["players"].player_list, start=1
+                Cache.roulette_active[guild].players.player_list, start=1
             )
         ]
     )
@@ -102,7 +102,7 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
         await interaction.response.defer()
         if (
             interaction.user
-            in Cache.roulette_active[self.guild]["players"].dead_players
+            in Cache.roulette_active[self.guild].players.dead_players
         ):
             await interaction.followup.send(
                 embed=MainEmbed("You're dead!"), ephemeral=True
@@ -111,8 +111,8 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
 
         elif (
             interaction.user
-            not in Cache.roulette_active[self.guild]["players"].dead_players
-            + Cache.roulette_active[self.guild]["players"].player_list
+            not in Cache.roulette_active[self.guild].players.dead_players
+            + Cache.roulette_active[self.guild].players.player_list
         ):
             await interaction.followup.send(
                 embed=MainEmbed("You're not a part of the game."),
@@ -122,29 +122,31 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
 
         elif (
             interaction.user
-            != Cache.roulette_active[self.guild]["players"].current_player
+            != Cache.roulette_active[self.guild].players.current_player
         ):
             await interaction.followup.send(
                 embed=MainEmbed("It is not your turn yet!"), ephemeral=True
             )
             return
 
-        killer = Cache.roulette_active[self.guild]["players"].current_player
-        next(Cache.roulette_active[self.guild]["chamber"])
+        killer = Cache.roulette_active[self.guild].players.current_player
+        next(Cache.roulette_active[self.guild].chamber)
 
         # The killer hit the shot -
-        if Cache.roulette_active[self.guild]["chamber"].check_hit():
+        if Cache.roulette_active[self.guild].chamber.check_hit():
             self.disabled = True
             self.style = discord.ButtonStyle.red
 
-            Cache.roulette_active[self.guild][
-                "chamber"
-            ].loaded_chamber = random.randint(1, 6)
-            Cache.roulette_active[self.guild]["players"].kill(self.player)
-            next(Cache.roulette_active[self.guild]["players"])
-            new_player = Cache.roulette_active[self.guild][
-                "players"
-            ].current_player
+            Cache.roulette_active[
+                self.guild
+            ].chamber.loaded_chamber = random.randint(1, 6)
+
+            Cache.roulette_active[self.guild].players.kill(self.player)
+            next(Cache.roulette_active[self.guild].players)
+
+            new_player = Cache.roulette_active[
+                self.guild
+            ].players.current_player
 
             if self.player == killer:
                 kill_text = random.choice(ROULETTE_SUICIDE_KILL_TEXTS).format(
@@ -157,10 +159,7 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
 
             killed_embed = MainEmbed(kill_text)
 
-            if (
-                len(Cache.roulette_active[self.guild]["players"].player_list)
-                == 1
-            ):
+            if len(Cache.roulette_active[self.guild].players.player_list) == 1:
                 self.view.disable_all_items()
                 await interaction.followup.edit_message(
                     interaction.message.id,
@@ -187,9 +186,9 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
         else:
             if (
                 self.player
-                != Cache.roulette_active[self.guild]["players"].current_player
+                != Cache.roulette_active[self.guild].players.current_player
             ):
-                next(Cache.roulette_active[self.guild]["players"])
+                next(Cache.roulette_active[self.guild].players)
 
             if self.player == killer:
                 kill_text = random.choice(ROULETTE_SUICIDE_MISS_TEXTS).format(
@@ -200,9 +199,9 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
                     killer.mention, self.player.mention
                 )
 
-            new_player = Cache.roulette_active[self.guild][
-                "players"
-            ].current_player
+            new_player = Cache.roulette_active[
+                self.guild
+            ].players.current_player
             await interaction.followup.edit_message(
                 interaction.message.id,
                 content=f"It's currently your turn {new_player.mention}",
@@ -215,7 +214,7 @@ class RouletteGame(discord.ui.View):
     def __init__(self, guild: int) -> None:
         super().__init__(timeout=None)
 
-        for player in Cache.roulette_active[guild]["players"].player_list:
+        for player in Cache.roulette_active[guild].players.player_list:
             self.add_item(RouletteButton(player=player, guild=guild))
 
 
@@ -230,14 +229,13 @@ class RouletteJoinView(discord.ui.View):
         self.guild = guild
         self.author = author
         self.message = message
-        self.countdown = Cache.roulette_active[guild]["countdown"]
+        self.countdown = Cache.roulette_active[guild].countdown
 
     async def on_timeout(self) -> None:
         if self.guild in Cache.roulette_active:
             if (
-                len(Cache.roulette_active[self.guild]["players"].player_list)
-                < 2
-                and not Cache.roulette_active[self.guild]["start"]
+                len(Cache.roulette_active[self.guild].players.player_list) < 2
+                and not Cache.roulette_active[self.guild].start
             ):
                 del Cache.roulette_active[self.guild]
                 return await self.message.edit(
@@ -247,14 +245,14 @@ class RouletteJoinView(discord.ui.View):
                     view=None,
                 )
 
-            elif not Cache.roulette_active[self.guild]["start"]:
+            elif not Cache.roulette_active[self.guild].start:
                 self.disable_all_items()
                 await self.message.edit(view=self)
 
-                Cache.roulette_active[self.guild]["start"] = True
-                first_player = Cache.roulette_active[self.guild][
-                    "players"
-                ].player_list[0]
+                Cache.roulette_active[self.guild].start = True
+                first_player = Cache.roulette_active[
+                    self.guild
+                ].players.player_list[0]
                 await self.message.channel.send(
                     f"It's currently your turn {first_player.mention}",
                     embed=MainEmbed("Click on whom you choose to kill."),
@@ -276,9 +274,7 @@ class RouletteJoinView(discord.ui.View):
 
         if (
             len(
-                Cache.roulette_active[interaction.guild.id][
-                    "players"
-                ].player_list
+                Cache.roulette_active[interaction.guild.id].players.player_list
             )
             < 2
         ):
@@ -289,15 +285,13 @@ class RouletteJoinView(discord.ui.View):
                 ephemeral=True,
             )
 
-        Cache.roulette_active[self.guild]["start"] = True
+        Cache.roulette_active[self.guild].start = True
 
         await interaction.message.edit(
             embed=MainEmbed("The game has been initiated!"), view=None
         )
 
-        first_player = Cache.roulette_active[self.guild][
-            "players"
-        ].player_list[0]
+        first_player = Cache.roulette_active[self.guild].players.player_list[0]
         await interaction.channel.send(
             f"It's currently your turn {first_player.mention}",
             embed=MainEmbed("Click on whom you choose to kill."),
@@ -321,9 +315,9 @@ class RouletteJoinView(discord.ui.View):
             )
             return
 
-        Cache.roulette_active[interaction.guild.id][
-            "players"
-        ].player_list.append(interaction.user)
+        Cache.roulette_active[interaction.guild.id].players.player_list.append(
+            interaction.user
+        )
         await interaction.followup.send(
             embed=MainEmbed("You have joined the game!"), ephemeral=True
         )
@@ -339,9 +333,9 @@ class RouletteJoinView(discord.ui.View):
         await interaction.response.defer()
         if (
             interaction.user
-            not in Cache.roulette_active[interaction.guild.id][
-                "players"
-            ].player_list
+            not in Cache.roulette_active[
+                interaction.guild.id
+            ].players.player_list
         ):
             await interaction.followup.send(
                 embed=MainEmbed("You're not a part of the game yet!"),
@@ -349,9 +343,9 @@ class RouletteJoinView(discord.ui.View):
             )
             return
 
-        Cache.roulette_active[interaction.guild.id][
-            "players"
-        ].player_list.remove(interaction.user)
+        Cache.roulette_active[interaction.guild.id].players.player_list.remove(
+            interaction.user
+        )
         await interaction.followup.send(
             embed=MainEmbed("You have left the game!"), ephemeral=True
         )
@@ -367,7 +361,7 @@ class RouletteInitView(discord.ui.View):
         self.author = author
 
     @discord.ui.button(label="Start Game", style=discord.ButtonStyle.blurple)
-    async def init_game_callback(
+    async def start_game_callback(
         self, button: Button, interaction: Interaction
     ) -> None:
         await interaction.response.defer()
@@ -383,13 +377,13 @@ class RouletteInitView(discord.ui.View):
         )
         countdown = f"<t:{round(countdown.timestamp())}:R>"
 
-        Cache.roulette_active[interaction.guild.id] = {
-            "players": PlayerIterator([interaction.user]),
-            "chamber": ChamberIterator(random.randint(1, 6)),
-            "countdown": countdown,
-            "start": False,
-            "message": interaction.message,
-        }
+        Cache.roulette_active[interaction.guild.id] = RouletteData(
+            PlayerIterator([interaction.user]),
+            ChamberIterator(random.randint(1, 6)),
+            countdown,
+            False,
+            interaction.message,
+        )
 
         await interaction.followup.edit_message(
             interaction.message.id,
