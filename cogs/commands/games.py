@@ -42,11 +42,12 @@ class Games(BaseCog):
         await ctx.defer()
 
         if ctx.guild.id in Cache.roulette_active:
-            return await ctx.respond(
+            await ctx.respond(
                 embed=MainEmbed(
                     "There is already an on going game in this server. Wait till it gets over to start a new one."
                 )
             )
+            return
 
         await ctx.respond(
             embed=MainEmbed("Welcome to Twisted Russian Roulette!"),
@@ -58,38 +59,41 @@ class Games(BaseCog):
         await ctx.defer()
 
         if ctx.guild.id not in Cache.roulette_active:
-            return await ctx.followup.send(
+            await ctx.respond(
                 embed=MainEmbed(
                     "There is no active game in the current server."
                 ),
                 ephemeral=True,
             )
+            return
 
         elif (
             ctx.author
-            in Cache.roulette_active[ctx.guild.id]["players"].player_list
+            in Cache.roulette_active[ctx.guild.id].players.player_list
         ):
-            return await ctx.followup.send(
+            await ctx.respond(
                 embed=MainEmbed("You're already a part of the game."),
                 ephemeral=True,
             )
+            return
 
-        elif Cache.roulette_active[ctx.guild.id]["start"]:
-            return await ctx.followup.send(
+        elif Cache.roulette_active[ctx.guild.id].start:
+            await ctx.respond(
                 embed=MainEmbed(
                     "You cannot join an on-going game. Wait till it gets over."
                 ),
                 ephemeral=True,
             )
+            return
 
-        Cache.roulette_active[ctx.guild.id]["players"].player_list.append(
+        Cache.roulette_active[ctx.guild.id].players.player_list.append(
             ctx.author
         )
-        await ctx.followup.send(
+        await ctx.respond(
             embed=MainEmbed("You have successfully joined!"), ephemeral=True
         )
 
-        await Cache.roulette_active[ctx.guild.id]["message"].edit(
+        await Cache.roulette_active[ctx.guild.id].message.edit(
             embed=roulette_embedder(ctx.guild.id, ctx.author)
         )
 
@@ -98,36 +102,39 @@ class Games(BaseCog):
         await ctx.defer()
 
         if ctx.guild.id not in Cache.roulette_active:
-            return await ctx.send_followup(
+            await ctx.respond(
                 embed=MainEmbed(
                     "There is no active game in the current server."
                 ),
                 ephemeral=True,
             )
+            return
 
         elif (
             ctx.author
-            not in Cache.roulette_active[ctx.guild.id]["players"].player_list
+            not in Cache.roulette_active[ctx.guild.id].players.player_list
         ):
-            return await ctx.send_followup(
+            await ctx.respond(
                 embed=MainEmbed("You're not a part of the game yet."),
                 ephemeral=True,
             )
+            return
 
-        elif Cache.roulette_active[ctx.guild.id]["start"]:
-            return await ctx.send_followup(
+        elif Cache.roulette_active[ctx.guild.id].start:
+            await ctx.respond(
                 embed=MainEmbed("You cannot leave an on-going game."),
                 ephemeral=True,
             )
+            return
 
-        Cache.roulette_active[ctx.guild.id]["players"].player_list.remove(
+        Cache.roulette_active[ctx.guild.id].players.player_list.remove(
             ctx.author
         )
-        await ctx.send_followup(
+        await ctx.respond(
             embed=MainEmbed("You have left the game."), ephemeral=True
         )
 
-        await Cache.roulette_active[ctx.guild.id]["message"].edit(
+        await Cache.roulette_active[ctx.guild.id].message.edit(
             embed=roulette_embedder(ctx.guild.id, ctx.author)
         )
 
