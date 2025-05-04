@@ -59,7 +59,7 @@ ROULETTE_MISS_TEXTS: tuple[str, ...] = (
 
 ROULETTE_SUICIDE_KILL_TEXTS: tuple[str, ...] = (
     "{} decided to gamble it all and died to themself!",
-    "Seems like {}'s luck ran out and died to themself!"
+    "Seems like {}'s luck ran out and died to themself!",
 )
 
 ROULETTE_SUICIDE_MISS_TEXTS: tuple[str, ...] = (
