@@ -12,9 +12,9 @@ if TYPE_CHECKING:
 class BaseCog(commands.Cog):
     cog_name: str = None
 
-    def __init_subclass__(cls, *, state_name: None | str = None) -> None:
+    def __init_subclass__(cls, *, cog_name: None | str = None) -> None:
         super().__init_subclass__()
-        cls.cog_name = state_name or cls.__name__
+        cls.cog_name = cog_name or cls.__name__
 
     def __init__(self, logger: Logger) -> None:
         super().__init__()
