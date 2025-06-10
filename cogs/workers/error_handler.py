@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from core import BaseCog, Bot
-from core.utils import ErrorEmbed, MainEmbed
+from core.utils import ErrorEmbed
 from data.constants.core import LOGGING_CHANNEL
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class ErrorHandler(BaseCog):
     ) -> None:
         if isinstance(error, commands.errors.BotMissingPermissions):
             await ctx.respond(
-                embed=MainEmbed(
+                embed=ErrorEmbed(
                     f"I'm missing the following permission(s) to execute this command:"
                     f"\n{', '.join(error.missing_permissions)}"
                 )
@@ -31,13 +31,20 @@ class ErrorHandler(BaseCog):
 
         elif isinstance(error, commands.errors.MissingPermissions):
             await ctx.respond(
-                embed=MainEmbed(
+                embed=ErrorEmbed(
                     f"You're missing the following permission(s) to execute this command:"
                     f"\n{', '.join(error.missing_permissions)}"
                 )
             )
 
         else:
+            await ctx.respond(
+                embed=ErrorEmbed(
+                    "Sorry :(",
+                    "An unexpected error has occurred. The developers have been notified of this.",
+                )
+            )
+
             print(
                 f"Ignoring exception in command {ctx.command}:",
                 file=sys.stderr,
@@ -68,13 +75,6 @@ class ErrorHandler(BaseCog):
                 embed=ErrorEmbed(
                     f"Error in command: {ctx.command}",
                     description,
-                )
-            )
-
-            await ctx.respond(
-                embed=ErrorEmbed(
-                    "Sorry :(",
-                    "An unexpected error has occurred. The developers have been notified of this.",
                 )
             )
 

@@ -65,8 +65,8 @@ class StatusHandler(BaseCog):
             # Prefixed by "Listening to"
             (
                 f"version {self.bot.version}",
-                f"humans in {Cache.guilds} Servers!",
-                f"{Cache.users} users!",
+                f"humans in {Cache.guilds:,} Servers!",
+                f"{Cache.users:,} users!",
                 "Slash Commands!",
             )
         )
