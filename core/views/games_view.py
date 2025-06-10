@@ -8,21 +8,26 @@ import discord
 from discord import Embed
 
 from backend.cache import Cache
-from core.utils import ErrorEmbed, MainEmbed
+from core.utils import (
+    ErrorEmbed,
+    MainEmbed,
+    safe_edit_response,
+    type_guarantee,
+)
+from core.views.base_view import BaseView
 from data.constants.core import PRIMARY_COLOUR
 from data.constants.games import (
     ROULETTE_KILL_TEXTS,
     ROULETTE_MISS_TEXTS,
     ROULETTE_SUICIDE_KILL_TEXTS,
     ROULETTE_SUICIDE_MISS_TEXTS,
-    Direction,
 )
-from data.games.mine import MineEngine
+from data.games.mine import Direction, MineEngine
 from data.games.roulette import ChamberIterator, PlayerIterator, RouletteData
 from data.timeouts.views import ROULETTE_AUTOSTART
 
 if TYPE_CHECKING:
-    from discord import Button, Interaction, Member, User
+    from discord import Button, Interaction, Member, Message, User
 
 
 class MineButton(discord.ui.Button["MineGameView"]):
@@ -50,7 +55,7 @@ class MineButton(discord.ui.Button["MineGameView"]):
         )
 
 
-class MineGameView(discord.ui.View):
+class MineGameView(BaseView):
     def __init__(self, author: int, engine: MineEngine) -> None:
         super().__init__(timeout=300, disable_on_timeout=True)
 
@@ -93,13 +98,17 @@ def roulette_embedder(guild: int, author: Member | User) -> Embed:
 
 
 class RouletteButton(discord.ui.Button["RouletteGame"]):
-    def __init__(self, player: discord.Member, guild: int) -> None:
+    def __init__(self, player: Member | User, guild: int) -> None:
         super().__init__(label=player.name, style=discord.ButtonStyle.green)
         self.player = player
         self.guild = guild
 
     async def callback(self, interaction: Interaction) -> None:
         await interaction.response.defer()
+
+        if TYPE_CHECKING and not type_guarantee(self.view, RouletteGame):
+            return
+
         if (
             interaction.user
             in Cache.roulette_active[self.guild].players.dead_players
@@ -161,8 +170,8 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
 
             if len(Cache.roulette_active[self.guild].players.player_list) == 1:
                 self.view.disable_all_items()
-                await interaction.followup.edit_message(
-                    interaction.message.id,
+                await safe_edit_response(
+                    interaction,
                     content=None,
                     embeds=[
                         killed_embed,
@@ -172,11 +181,12 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
                     ],
                     view=self.view,
                 )
+
                 del Cache.roulette_active[self.guild]
 
             else:
-                await interaction.followup.edit_message(
-                    interaction.message.id,
+                await safe_edit_response(
+                    interaction,
                     content=f"It's currently your turn {new_player.mention}",
                     embed=killed_embed,
                     view=self.view,
@@ -202,15 +212,15 @@ class RouletteButton(discord.ui.Button["RouletteGame"]):
             new_player = Cache.roulette_active[
                 self.guild
             ].players.current_player
-            await interaction.followup.edit_message(
-                interaction.message.id,
+            await safe_edit_response(
+                interaction,
                 content=f"It's currently your turn {new_player.mention}",
                 embed=MainEmbed(kill_text),
                 view=self.view,
             )
 
 
-class RouletteGame(discord.ui.View):
+class RouletteGame(BaseView):
     def __init__(self, guild: int) -> None:
         super().__init__(timeout=None)
 
@@ -218,12 +228,12 @@ class RouletteGame(discord.ui.View):
             self.add_item(RouletteButton(player=player, guild=guild))
 
 
-class RouletteJoinView(discord.ui.View):
+class RouletteJoinView(BaseView):
     def __init__(
         self,
         guild: int,
-        author: discord.Member,
-        message: discord.Message,
+        author: Member,
+        message: Message,
     ) -> None:
         super().__init__(timeout=ROULETTE_AUTOSTART)
         self.guild = guild
@@ -232,18 +242,22 @@ class RouletteJoinView(discord.ui.View):
         self.countdown = Cache.roulette_active[guild].countdown
 
     async def on_timeout(self) -> None:
+        if TYPE_CHECKING and not type_guarantee(self.message, discord.Message):
+            return
+
         if self.guild in Cache.roulette_active:
             if (
                 len(Cache.roulette_active[self.guild].players.player_list) < 2
                 and not Cache.roulette_active[self.guild].start
             ):
                 del Cache.roulette_active[self.guild]
-                return await self.message.edit(
+                await self.message.edit(
                     embed=MainEmbed(
                         "Not enough players joined. The game was cancelled."
                     ),
                     view=None,
                 )
+                return
 
             elif not Cache.roulette_active[self.guild].start:
                 self.disable_all_items()
@@ -264,6 +278,17 @@ class RouletteJoinView(discord.ui.View):
         self, button: Button, interaction: Interaction
     ) -> None:
         await interaction.response.defer()
+
+        if (
+            TYPE_CHECKING
+            and not type_guarantee(
+                interaction.user, discord.Member, discord.User
+            )
+            or not type_guarantee(interaction.guild, discord.Guild)
+            or not type_guarantee(interaction.message, discord.Message)
+        ):
+            return
+
         if interaction.user.id != self.author.id:
             return await interaction.followup.send(
                 embed=MainEmbed(
@@ -305,9 +330,7 @@ class RouletteJoinView(discord.ui.View):
         await interaction.response.defer()
         if (
             interaction.user
-            in Cache.roulette_active[interaction.guild.id][
-                "players"
-            ].player_list
+            in Cache.roulette_active[interaction.guild.id].players.player_list
         ):
             await interaction.followup.send(
                 embed=MainEmbed("You're already a part of the game!"),
@@ -355,7 +378,7 @@ class RouletteJoinView(discord.ui.View):
         )
 
 
-class RouletteInitView(discord.ui.View):
+class RouletteInitView(BaseView):
     def __init__(self, author: int) -> None:
         super().__init__(disable_on_timeout=True)
         self.author = author
@@ -385,19 +408,23 @@ class RouletteInitView(discord.ui.View):
             interaction.message,
         )
 
-        await interaction.followup.edit_message(
-            interaction.message.id,
-            embed=roulette_embedder(interaction.guild.id, interaction.user),
-            view=RouletteJoinView(
-                interaction.guild.id, interaction.user, interaction.message
-            ),
-        )
+        if interaction.message:
+            await interaction.followup.edit_message(
+                interaction.message.id,
+                embed=roulette_embedder(
+                    interaction.guild.id, interaction.user
+                ),
+                view=RouletteJoinView(
+                    interaction.guild.id, interaction.user, interaction.message
+                ),
+            )
 
     @discord.ui.button(label="Cancel Game", style=discord.ButtonStyle.red)
     async def cancel_game_callback(
         self, button: Button, interaction: Interaction
     ) -> None:
         await interaction.response.defer()
+
         if interaction.user.id != self.author:
             await interaction.followup.send(
                 embed=MainEmbed("This interaction is not for you"),
