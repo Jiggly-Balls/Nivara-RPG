@@ -1,3 +1,16 @@
+"""
+Custom logger - adapted from discord.py
+
+The core logic in this file is based on the following public repo:
+https://github.com/Rapptz/discord.py/blob/master/discord/utils.py
+
+Original Author:
+    Rapptz (https://github.com/Rapptz)
+
+Modifications and integration into disckit by:
+    Jiggly-Balls
+"""
+
 from __future__ import annotations
 
 import logging
