@@ -1,7 +1,7 @@
 def get_version(pyproject_path: str = "pyproject.toml") -> None | str:
     """Reads the pyproject.toml file from the desired path and returns the version
     classifier if possible.
-    
+
     Parameters
     ----------
     pyproject_path : str

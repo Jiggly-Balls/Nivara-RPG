@@ -3,14 +3,8 @@ import logging
 import discord
 from discord import ApplicationContext
 
-from backend.cache import Cache
 from core import BaseCog, Bot
-from core.utils import MainEmbed
-from core.views.games_view import (
-    MineGameView,
-    RouletteInitView,
-    roulette_embedder,
-)
+from core.views.games_view import MineGameView
 from data.games.mine import MineEngine
 
 logger = logging.getLogger(__name__)
@@ -36,107 +30,6 @@ class Games(BaseCog):
         miner.create_map()
         image = miner.create_image()
         await ctx.respond(image, view=MineGameView(ctx.author.id, miner))
-
-    @roulette_group.command()
-    async def start(self, ctx: ApplicationContext) -> None:
-        await ctx.defer()
-
-        if ctx.guild.id in Cache.roulette_active:
-            await ctx.respond(
-                embed=MainEmbed(
-                    "There is already an on going game in this server. Wait till it gets over to start a new one."
-                )
-            )
-            return
-
-        await ctx.respond(
-            embed=MainEmbed("Welcome to Twisted Russian Roulette!"),
-            view=RouletteInitView(ctx.author.id),
-        )
-
-    @roulette_group.command()
-    async def join(self, ctx: ApplicationContext) -> None:
-        await ctx.defer()
-
-        if ctx.guild.id not in Cache.roulette_active:
-            await ctx.respond(
-                embed=MainEmbed(
-                    "There is no active game in the current server."
-                ),
-                ephemeral=True,
-            )
-            return
-
-        elif (
-            ctx.author
-            in Cache.roulette_active[ctx.guild.id].players.player_list
-        ):
-            await ctx.respond(
-                embed=MainEmbed("You're already a part of the game."),
-                ephemeral=True,
-            )
-            return
-
-        elif Cache.roulette_active[ctx.guild.id].start:
-            await ctx.respond(
-                embed=MainEmbed(
-                    "You cannot join an on-going game. Wait till it gets over."
-                ),
-                ephemeral=True,
-            )
-            return
-
-        Cache.roulette_active[ctx.guild.id].players.player_list.append(
-            ctx.author
-        )
-        await ctx.respond(
-            embed=MainEmbed("You have successfully joined!"), ephemeral=True
-        )
-
-        await Cache.roulette_active[ctx.guild.id].message.edit(
-            embed=roulette_embedder(ctx.guild.id, ctx.author)
-        )
-
-    @roulette_group.command()
-    async def leave(self, ctx: ApplicationContext) -> None:
-        await ctx.defer()
-
-        if ctx.guild.id not in Cache.roulette_active:
-            await ctx.respond(
-                embed=MainEmbed(
-                    "There is no active game in the current server."
-                ),
-                ephemeral=True,
-            )
-            return
-
-        elif (
-            ctx.author
-            not in Cache.roulette_active[ctx.guild.id].players.player_list
-        ):
-            await ctx.respond(
-                embed=MainEmbed("You're not a part of the game yet."),
-                ephemeral=True,
-            )
-            return
-
-        elif Cache.roulette_active[ctx.guild.id].start:
-            await ctx.respond(
-                embed=MainEmbed("You cannot leave an on-going game."),
-                ephemeral=True,
-            )
-            return
-
-        Cache.roulette_active[ctx.guild.id].players.player_list.remove(
-            ctx.author
-        )
-        await ctx.respond(
-            embed=MainEmbed("You have left the game."), ephemeral=True
-        )
-
-        await Cache.roulette_active[ctx.guild.id].message.edit(
-            embed=roulette_embedder(ctx.guild.id, ctx.author)
-        )
 
 
 def setup(bot: Bot) -> None:

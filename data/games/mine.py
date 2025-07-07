@@ -34,7 +34,7 @@ class MineRates(IntEnum):
 def asset_rate_bind() -> tuple[list[MineAssets], list[int]]:
     names: list[MineAssets] = []
     rates: list[int] = []
-    asset_map: dict[str, MineAssets] = MineAssets._member_map_
+    asset_map: dict[str, MineAssets] = MineAssets._member_map_  # type:ignore - VSCode pylance bug
 
     for name, rate in MineRates._member_map_.items():
         names.append(asset_map[name])
