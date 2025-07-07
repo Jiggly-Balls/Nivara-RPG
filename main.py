@@ -15,6 +15,7 @@ __copyright__ = "Copyright 2025-present Jiggly Balls"
 
 
 import asyncio
+import asyncpg
 import datetime
 import logging
 import os
@@ -79,19 +80,20 @@ async def main() -> None:
             raise RuntimeError("No 'TOKEN' was provided in the .env file")
 
         bot = Bot(intents=intents)
-        BaseData.db_engine = create_async_engine(
-            CONNECTION_STRING, pool_pre_ping=True
-        )
-        BaseData.session_factory = async_sessionmaker(
-            BaseData.db_engine, expire_on_commit=True
-        )
-        Cache.uptime = f"<t:{round(datetime.datetime.now().timestamp())}:R>"
-
-        async with BaseData.db_engine.begin() as conn:
-            await conn.run_sync(BaseTable.metadata.create_all)
+        try:
+            BaseData.db_engine = create_async_engine(
+                CONNECTION_STRING, pool_pre_ping=True
+            )
+            BaseData.session_factory = async_sessionmaker(
+                BaseData.db_engine, expire_on_commit=True
+            )
+            async with BaseData.db_engine.begin() as conn:
+                await conn.run_sync(BaseTable.metadata.create_all)
+        except asyncpg.InternalServerError as error:
+            logger.warning("Couldn't connect to database : %s", str(error))
 
         load_extensions(bot=bot, directory=EXTENSION_DIRECTORY)
-
+        Cache.uptime = f"<t:{round(datetime.datetime.now().timestamp())}:R>"
         await bot.start(TOKEN)
 
     finally:
