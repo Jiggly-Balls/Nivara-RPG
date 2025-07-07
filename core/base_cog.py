@@ -4,13 +4,14 @@ from typing import TYPE_CHECKING
 
 import discord
 from discord.ext import commands
+from discord.utils import MISSING
 
 if TYPE_CHECKING:
     from logging import Logger
 
 
 class BaseCog(commands.Cog):
-    cog_name: str = None
+    cog_name: str = MISSING
 
     def __init_subclass__(cls, *, cog_name: None | str = None) -> None:
         super().__init_subclass__()
@@ -18,7 +19,7 @@ class BaseCog(commands.Cog):
 
     def __init__(self, logger: Logger) -> None:
         super().__init__()
-        self.logger = logger
+        self.logger: Logger = logger
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:

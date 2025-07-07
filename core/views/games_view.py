@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 import discord
 
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from discord import Interaction
 
 
+@final
 class MineButton(discord.ui.Button["MineGameView"]):
     def __init__(self, emoji: str, direction: Direction) -> None:
         super().__init__(emoji=emoji, style=discord.ButtonStyle.blurple)
@@ -37,6 +38,7 @@ class MineButton(discord.ui.Button["MineGameView"]):
         )
 
 
+@final
 class MineGameView(BaseView):
     def __init__(self, author: int, engine: MineEngine) -> None:
         super().__init__(timeout=300, disable_on_timeout=True)

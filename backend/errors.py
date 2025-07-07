@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, final
 
 
 class DBException(Exception):
@@ -8,6 +8,7 @@ class DBException(Exception):
         super().__init__(*args, **kwargs)
 
 
+@final
 class DBConnectionException(DBException):
     """Raised when database connection issue arises.
 
@@ -22,6 +23,7 @@ class DBConnectionException(DBException):
         super().__init__(*args, **kwargs)
 
 
+@final
 class InvalidType(DBException):
     """Raised when an invalid type is passed.
 

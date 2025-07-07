@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class Bot(discord.Bot):
     def __init__(self, *, intents: Intents) -> None:
         super().__init__(intents=intents)
-        self.version = get_version() or "Unkown"
+        self.version: str = get_version() or "Unkown"
 
     async def on_ready(self) -> None:
         Cache.last_reconnect = (

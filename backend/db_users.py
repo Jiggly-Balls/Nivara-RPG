@@ -22,7 +22,7 @@ class UserAspect(StrEnum):
 
 class UserDB(BaseData):
     def __init__(self, id: int) -> None:
-        self.id = id
+        self.id: int = id
 
     async def post_account(self) -> bool:
         async with BaseData.session_factory() as session:

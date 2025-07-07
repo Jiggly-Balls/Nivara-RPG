@@ -1,3 +1,5 @@
+from typing import final
+
 from sqlalchemy import BigInteger, Column, Integer
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
@@ -6,6 +8,7 @@ from sqlalchemy.orm import DeclarativeBase
 class BaseTable(AsyncAttrs, DeclarativeBase): ...
 
 
+@final
 class User(BaseTable):
     __tablename__ = "users"
 

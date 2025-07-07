@@ -1,6 +1,7 @@
 import random
 from enum import Enum, IntEnum, StrEnum, auto
 from functools import cache
+from typing import final
 
 
 class Direction(Enum):
@@ -43,6 +44,7 @@ def asset_rate_bind() -> tuple[list[MineAssets], list[int]]:
     return names, rates
 
 
+@final
 class MineEngine:
     def __init__(self, player_x: int = 10, player_y: int = 10) -> None:
         self.data: dict[tuple[int, int], MineAssets] = {}

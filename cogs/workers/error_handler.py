@@ -1,6 +1,7 @@
 import logging
 import sys
 import traceback
+from typing import final
 
 import discord
 from discord.ext import commands
@@ -12,6 +13,7 @@ from data.constants.core import LOGGING_CHANNEL
 logger = logging.getLogger(__name__)
 
 
+@final
 class ErrorHandler(BaseCog):
     def __init__(self, bot: Bot) -> None:
         super().__init__(logger=logger)

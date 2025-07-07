@@ -15,11 +15,11 @@ __copyright__ = "Copyright 2025-present Jiggly Balls"
 
 
 import asyncio
-import asyncpg
 import datetime
 import logging
 import os
 
+import asyncpg
 import discord
 import dotenv
 from discord import MISSING

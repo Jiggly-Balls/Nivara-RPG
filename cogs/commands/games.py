@@ -1,4 +1,5 @@
 import logging
+from typing import final
 
 import discord
 from discord import ApplicationContext
@@ -10,6 +11,7 @@ from data.games.mine import MineEngine
 logger = logging.getLogger(__name__)
 
 
+@final
 class Games(BaseCog):
     games_group = discord.SlashCommandGroup(
         "games", "Fun games to play with your friends!"

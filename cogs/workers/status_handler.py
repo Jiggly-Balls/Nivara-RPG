@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 import discord
 from discord.ext import tasks
@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+@final
 class StatusHandler(BaseCog):
     def __init__(self, bot: Bot) -> None:
         super().__init__(logger=logger)
