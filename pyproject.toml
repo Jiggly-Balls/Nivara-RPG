@@ -46,6 +46,5 @@ reportAny = false
 reportExplicitAny = false
 reportUnknownVariableType = false
 reportUnknownMemberType = false
-reportUnannotatedClassAttribute = false
 reportImplicitOverride = false
 reportUnusedParameter = false
