@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class BaseData(ABC):
-    """A class representing the base of all databases connected via Postgresql.
+    """The base class of all databases exposing the required endpoints as methods.
 
     Attributes
     ----------
