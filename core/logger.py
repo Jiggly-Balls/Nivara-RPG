@@ -7,7 +7,7 @@ https://github.com/Rapptz/discord.py/blob/master/discord/utils.py
 Original Author:
     Rapptz (https://github.com/Rapptz)
 
-Modifications and integration into disckit by:
+Modifications and integration into Nivara-RPG by:
     Jiggly-Balls
 """
 
@@ -23,6 +23,9 @@ from discord import MISSING
 if TYPE_CHECKING:
     from logging import Formatter, Handler
     from typing import Any
+
+
+__all__ = ("setup_logging",)
 
 
 @final
