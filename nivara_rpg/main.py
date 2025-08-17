@@ -60,11 +60,12 @@ def load_extensions(*, bot: Bot, directory: str) -> None:
     directory
         The directory containing the cogs.
     """
+    parent = directory.split("/")[1]
 
     for folder in os.listdir(directory):
         for cog in os.listdir(directory + "/" + folder):
             if cog.endswith(".py"):
-                cog_path = directory + "." + folder + "." + cog[:-3]
+                cog_path = parent.replace("/", ".") + "." + folder + "." + cog[:-3]
                 bot.load_extension(cog_path)
                 logging.info(f"Loading Extension: {cog_path}")
 
