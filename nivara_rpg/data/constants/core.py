@@ -1,4 +1,4 @@
-EXTENSION_DIRECTORY: str = "src/cogs"
+EXTENSION_DIRECTORY: str = "nivara_rpg/cogs"
 STATUS_INTERVAL: float = 600.0
 
 PRIMARY_COLOUR: int = 0xFFE819
