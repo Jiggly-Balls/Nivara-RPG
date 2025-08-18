@@ -10,7 +10,7 @@ A fun RPG bot for your discord server.
 
 __title__ = "Nivara RPG"
 __author__ = "Jiggly Balls"
-__license__ = "MIT License"
+__license__ = "GPL-2.0 License"
 __copyright__ = "Copyright 2025-present Jiggly Balls"
 
 
