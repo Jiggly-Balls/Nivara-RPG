@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 import discord
+
 from core.utils import ErrorEmbed
 from core.views.base_view import BaseView
 from data.games.mine import Direction, MineEngine

@@ -4,10 +4,11 @@ import traceback
 from typing import final
 
 import discord
+from discord.ext import commands
+
 from core import BaseCog, Bot
 from core.utils import ErrorEmbed
 from data.constants.core import LOGGING_CHANNEL
-from discord.ext import commands
 
 logger = logging.getLogger(__name__)
 

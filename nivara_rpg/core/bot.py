@@ -5,6 +5,7 @@ import logging
 from typing import TYPE_CHECKING
 
 import discord
+
 from backend.cache import Cache
 from core.meta import get_version
 

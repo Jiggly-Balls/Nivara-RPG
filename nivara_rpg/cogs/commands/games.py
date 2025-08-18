@@ -2,10 +2,11 @@ import logging
 from typing import final
 
 import discord
+from discord import ApplicationContext
+
 from core import BaseCog, Bot
 from core.views.games_view import MineGameView
 from data.games.mine import MineEngine
-from discord import ApplicationContext
 
 logger = logging.getLogger(__name__)
 

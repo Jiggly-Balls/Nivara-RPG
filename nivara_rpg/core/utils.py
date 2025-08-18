@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, overload
 
-from data.constants.core import ERROR_COLOUR, PRIMARY_COLOUR
 from discord import MISSING, Embed
+
+from data.constants.core import ERROR_COLOUR, PRIMARY_COLOUR
 
 if TYPE_CHECKING:
     from typing import Any, TypeGuard, TypeVar

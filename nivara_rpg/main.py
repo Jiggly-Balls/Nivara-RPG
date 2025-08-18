@@ -22,13 +22,14 @@ import os
 import asyncpg
 import discord
 import dotenv
+from discord import MISSING
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
 from backend.base_db import BaseData
 from backend.cache import Cache
 from backend.tables import BaseTable
 from core import Bot, setup_logging
 from data.constants.core import EXTENSION_DIRECTORY
-from discord import MISSING
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 ENV = dotenv.dotenv_values(".env")
 TOKEN = ENV["TOKEN"]

@@ -4,12 +4,13 @@ from typing import final
 
 import asyncpg
 import discord
+from discord import ApplicationContext
+
 from backend.cache import Cache
 from backend.db_users import UserDB
 from backend.errors import DBConnectionException
 from core import BaseCog, Bot
 from core.utils import MainEmbed
-from discord import ApplicationContext
 
 logger = logging.getLogger(__name__)
 
