@@ -4,10 +4,9 @@ from enum import StrEnum, auto
 from typing import TYPE_CHECKING, overload
 
 import sqlalchemy
-from sqlalchemy import select, update
-
 from backend.base_db import BaseData
 from backend.tables import User
+from sqlalchemy import select, update
 
 if TYPE_CHECKING:
     from typing import Any, Literal

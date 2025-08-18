@@ -5,10 +5,9 @@ import traceback
 from typing import TYPE_CHECKING
 
 import discord
-from discord.ext import commands
-
 from core.utils import ErrorEmbed, type_guarantee
 from data.constants.core import LOGGING_CHANNEL
+from discord.ext import commands
 
 if TYPE_CHECKING:
     from typing import Any

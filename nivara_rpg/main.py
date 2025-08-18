@@ -22,14 +22,13 @@ import os
 import asyncpg
 import discord
 import dotenv
-from discord import MISSING
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
 from backend.base_db import BaseData
 from backend.cache import Cache
 from backend.tables import BaseTable
 from core import Bot, setup_logging
 from data.constants.core import EXTENSION_DIRECTORY
+from discord import MISSING
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 ENV = dotenv.dotenv_values(".env")
 TOKEN = ENV["TOKEN"]
@@ -65,7 +64,9 @@ def load_extensions(*, bot: Bot, directory: str) -> None:
     for folder in os.listdir(directory):
         for cog in os.listdir(directory + "/" + folder):
             if cog.endswith(".py"):
-                cog_path = parent.replace("/", ".") + "." + folder + "." + cog[:-3]
+                cog_path = (
+                    parent.replace("/", ".") + "." + folder + "." + cog[:-3]
+                )
                 bot.load_extension(cog_path)
                 logging.info(f"Loading Extension: {cog_path}")
 
