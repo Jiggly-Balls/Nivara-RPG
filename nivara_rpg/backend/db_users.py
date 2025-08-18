@@ -62,7 +62,7 @@ class UserDB(BaseData):
 
     async def update_aspect(self, key: UserAspect, value: Any) -> None:
         async with BaseData.session_factory() as session:
-            payload = {str(key): value}
+            payload: dict[str, Any] = {str(key): value}
 
             update_user_query = (
                 update(User)
