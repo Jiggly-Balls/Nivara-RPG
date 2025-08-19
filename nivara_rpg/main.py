@@ -22,7 +22,7 @@ import os
 import asyncpg
 import discord
 import dotenv
-from discord import MISSING
+from discord.utils import MISSING
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from backend.base_db import BaseData
@@ -52,7 +52,7 @@ setup_logging()
 logger = logging.getLogger()
 
 
-def load_extensions(*, bot: Bot, directory: str) -> None:
+async def load_extensions(*, bot: Bot, directory: str) -> None:
     """Loads all the extensions from the supplied directory.
 
     Parameters
@@ -68,7 +68,7 @@ def load_extensions(*, bot: Bot, directory: str) -> None:
                 cog_path = (
                     parent.replace("/", ".") + "." + folder + "." + cog[:-3]
                 )
-                bot.load_extension(cog_path)
+                await bot.load_extension(cog_path)
                 logging.info(f"Loading Extension: {cog_path}")
 
 
@@ -95,7 +95,7 @@ async def main() -> None:
         except asyncpg.InternalServerError as error:
             logger.warning("Couldn't connect to database : %s", str(error))
 
-        load_extensions(bot=bot, directory=EXTENSION_DIRECTORY)
+        await load_extensions(bot=bot, directory=EXTENSION_DIRECTORY)
         Cache.uptime = f"<t:{round(datetime.datetime.now().timestamp())}:R>"
         await bot.start(TOKEN)
 
