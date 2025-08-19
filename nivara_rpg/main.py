@@ -22,13 +22,13 @@ import os
 import asyncpg
 import discord
 import dotenv
-from discord.utils import MISSING
+from discord.utils import MISSING, setup_logging
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from backend.base_db import BaseData
 from backend.cache import Cache
 from backend.tables import BaseTable
-from core import Bot, setup_logging
+from core import Bot
 from data.constants.core import EXTENSION_DIRECTORY
 
 ENV = dotenv.dotenv_values(".env")
