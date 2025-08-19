@@ -18,9 +18,7 @@ logger = logging.getLogger(__name__)
 
 class Bot(commands.Bot):
     def __init__(self, *, intents: Intents) -> None:
-        super().__init__(
-            command_prefix=[], intents=intents
-        )
+        super().__init__(command_prefix=[], intents=intents)
         self.version: str = get_version() or "Unkown"
         self._connected: bool = False
 
