@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, overload
 
-from discord import MISSING, Embed
+from discord import Embed
+from discord.utils import MISSING
 
 from data.constants.core import ERROR_COLOUR, PRIMARY_COLOUR
 
@@ -20,77 +21,6 @@ if TYPE_CHECKING:
     from discord.ui.view import View
 
     T = TypeVar("T")
-
-
-class MainEmbed(Embed):
-    @overload
-    def __init__(self, description: str, **kwargs: Any) -> None: ...
-
-    @overload
-    def __init__(
-        self, title: str, description: str, **kwargs: Any
-    ) -> None: ...
-
-    def __init__(  # pyright:ignore[reportInconsistentOverload]
-        self,
-        title: None | str,
-        description: str | None = None,
-        /,
-        **kwargs: Any,
-    ) -> None:
-        if description is None:
-            description = title
-            title = None
-
-        super().__init__(
-            title=title,
-            description=description,
-            colour=PRIMARY_COLOUR,
-            **kwargs,
-        )
-
-
-class ErrorEmbed(Embed):
-    @overload
-    def __init__(self, description: str, **kwargs: Any) -> None: ...
-
-    @overload
-    def __init__(
-        self, title: str, description: str, **kwargs: Any
-    ) -> None: ...
-
-    def __init__(  # pyright:ignore[reportInconsistentOverload]
-        self,
-        title: None | str,
-        description: str | None = None,
-        /,
-        **kwargs: Any,
-    ) -> None:
-        if description is None:
-            description = title
-            title = None
-
-        super().__init__(
-            title=title,
-            description=description,
-            colour=ERROR_COLOUR,
-            **kwargs,
-        )
-
-
-def type_guarantee(var: Any, *var_types: type[T]) -> TypeGuard[T]:
-    """Ensures the type of a variable for type checking purposes only;
-    it has no effect at runtime.
-
-    Parameters
-    ----------
-    var
-        The variable to guarentee the type for.
-    *var_types
-        The types to verify against.
-    """
-
-    return True
 
 
 async def safe_edit_response(
