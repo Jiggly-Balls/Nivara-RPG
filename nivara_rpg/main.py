@@ -99,7 +99,7 @@ async def main() -> None:
         Cache.uptime = f"<t:{round(datetime.datetime.now().timestamp())}:R>"
         await bot.start(TOKEN)
 
-    finally: 
+    finally:
         if BaseData.db_engine is not MISSING:
             logger.info("Attempting to close database connection.")
             await BaseData.db_engine.dispose()
