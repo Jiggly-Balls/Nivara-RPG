@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 import discord
+from disckit.utils.ui import BaseView
+from disckit.utils import ErrorEmbed
 
-from core.utils import ErrorEmbed
-from core.views.base_view import BaseView
 from data.games.mine import Direction, MineEngine
 
 if TYPE_CHECKING:
