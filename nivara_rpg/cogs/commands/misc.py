@@ -37,18 +37,18 @@ class Misc(BaseCog):
         except (DBConnectionException, asyncpg.InternalServerError):
             db_latency = "`DB not connected`"
 
-        bot_latency = f"`{round(self.bot.latency * 1000):,} ms`"
+        total_guilds = len(self.bot.guilds)
+        total_users = len(self.bot.users)
 
-        thumbnail = None
+        bot_latency = f"`{round(self.bot.latency * 1000):,} ms`"
+        status_embed = MainEmbed(title="Nivara's Status")
+
         if self.bot.user:
             thumbnail = self.bot.user.display_avatar.url
+            status_embed.set_thumbnail(url=thumbnail)
 
         status_embed = (
-            MainEmbed(
-                "Nivara's Status",
-                thumbnail=thumbnail,
-            )
-            .add_field(
+            status_embed.add_field(
                 name="Version", value=f"`{self.bot.version}`", inline=False
             )
             .add_field(name="Bot Latency", value=bot_latency, inline=False)
@@ -63,12 +63,12 @@ class Misc(BaseCog):
             )
             .add_field(
                 name="Present In",
-                value=f"`{Cache.guilds}` guilds",
+                value=f"`{total_guilds}` guilds",
                 inline=False,
             )
             .add_field(
                 name="Watching Over",
-                value=f"`{Cache.users}` users",
+                value=f"`{total_users}` users",
                 inline=False,
             )
         )
