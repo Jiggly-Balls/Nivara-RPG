@@ -3,14 +3,13 @@ import time
 from typing import final
 
 import asyncpg
-import discord
-from discord import ApplicationContext
+from disckit.utils import MainEmbed
+from discord import Interaction, app_commands
 
 from backend.cache import Cache
 from backend.db_users import UserDB
 from backend.errors import DBConnectionException
 from core import BaseCog, Bot
-from core.utils import MainEmbed
 
 logger = logging.getLogger(__name__)
 
@@ -21,35 +20,35 @@ class Misc(BaseCog):
         super().__init__(logger=logger)
         self.bot = bot
 
-    misc = discord.SlashCommandGroup(
-        "misc", "Miscellaneous commands about the bot."
+    misc = app_commands.Group(
+        name="misc", description="Miscellaneous commands about the bot."
     )
 
     @misc.command()
-    async def status(self, ctx: ApplicationContext) -> None:
-        await ctx.defer()
+    async def status(self, interaction: Interaction) -> None:
+        await interaction.response.defer()
 
         db_time = time.perf_counter()
         try:
-            await UserDB(ctx.author.id).get_account(False)
+            await UserDB(interaction.user.id).get_account(False)
             db_latency = (
                 f"`{round((time.perf_counter() - db_time) * 1000):,} ms`"
             )
         except (DBConnectionException, asyncpg.InternalServerError):
             db_latency = "`DB not connected`"
 
-        bot_latency = f"`{round(self.bot.latency * 1000):,} ms`"
+        total_guilds = len(self.bot.guilds)
+        total_users = len(self.bot.users)
 
-        thumbnail = None
+        bot_latency = f"`{round(self.bot.latency * 1000):,} ms`"
+        status_embed = MainEmbed(title="Nivara's Status")
+
         if self.bot.user:
             thumbnail = self.bot.user.display_avatar.url
+            status_embed.set_thumbnail(url=thumbnail)
 
         status_embed = (
-            MainEmbed(
-                "Nivara's Status",
-                thumbnail=thumbnail,
-            )
-            .add_field(
+            status_embed.add_field(
                 name="Version", value=f"`{self.bot.version}`", inline=False
             )
             .add_field(name="Bot Latency", value=bot_latency, inline=False)
@@ -64,18 +63,18 @@ class Misc(BaseCog):
             )
             .add_field(
                 name="Present In",
-                value=f"`{Cache.guilds}` guilds",
+                value=f"`{total_guilds}` guilds",
                 inline=False,
             )
             .add_field(
                 name="Watching Over",
-                value=f"`{Cache.users}` users",
+                value=f"`{total_users}` users",
                 inline=False,
             )
         )
 
-        await ctx.respond(embed=status_embed)
+        await interaction.followup.send(embed=status_embed)
 
 
-def setup(bot: Bot) -> None:
-    bot.add_cog(Misc(bot))
+async def setup(bot: Bot) -> None:
+    await bot.add_cog(Misc(bot))

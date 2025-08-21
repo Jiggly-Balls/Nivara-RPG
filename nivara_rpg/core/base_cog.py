@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import discord
 from discord.ext import commands
 from discord.utils import MISSING
 
@@ -21,6 +20,6 @@ class BaseCog(commands.Cog):
         super().__init__()
         self.logger: Logger = logger
 
-    @discord.Cog.listener()
+    @commands.Cog.listener()
     async def on_ready(self) -> None:
         self.logger.info(f"{self.cog_name} is ready.")
