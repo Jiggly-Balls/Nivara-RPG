@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from discord import MISSING
+from discord.utils import MISSING
 
 
 class Cache:

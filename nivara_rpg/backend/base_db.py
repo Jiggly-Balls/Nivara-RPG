@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
-from discord import MISSING
+from discord.utils import MISSING
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.errors import DBConnectionException
